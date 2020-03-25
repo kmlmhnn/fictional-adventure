@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Search</title>
+  </head>
+  <body>
+    <form onsubmit="return false">
+      <input
+        type="search"
+        id="searchBox"
+        placeholder="Enter trading symbol here..."
+        required
+        pattern="^[A-Z0-9]+$"
+      />
+      <button id="searchButton">Search</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+      (function() {
+        var httpRequest;
+
+        document
+          .getElementById("searchButton")
+          .addEventListener("click", function() {
+            var searchBox = document.getElementById("searchBox");
+            if (searchBox.checkValidity()) {
+              var searchTerm = searchBox.value;
+              document.getElementById("response").innerHTML = "Loading...";
+              makeRequest(searchTerm);
+            }
+          });
+
+        function makeRequest(searchTerm) {
+          httpRequest = new XMLHttpRequest();
+          if (!httpRequest) {
+            alert("Failed to create XMLHttpRequest object!");
+            return false;
+          }
+          httpRequest.onreadystatechange = showResults;
+          httpRequest.open("POST", "/search");
+          httpRequest.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+          );
+          httpRequest.send("searchTerm=" + encodeURIComponent(searchTerm));
+        }
+
+        function showResults() {
+          if (httpRequest.readyState === XMLHttpRequest.DONE) {
+            if (httpRequest.status !== 200) {
+              alert("There was a problem serving the request.");
+            }
+            document.getElementById("response").innerHTML =
+              httpRequest.responseText;
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
